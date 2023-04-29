@@ -1,0 +1,41 @@
+name: "GitHub Action Rust-on-Debian"
+description: "GitHub Action to running Rust binary on Debian Bulls Eye."
+inputs:
+  project-directory:
+    description: "Working directory for the build."
+    required: true
+  project-name:
+    description: "Name of the binary to run."
+    required: true
+  ssh-user:
+    description: "SSH user."
+    required: true
+  ssh-host:
+    description: "SSH host."
+    required: true
+  ssh-private-key:
+    description: "SSH private key."
+    required: true
+  ssh-known-hosts:
+    description: "SSH known hosts."
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Rust stable
+      uses: dtolnay/rust-toolchain@stable
+    - name: Build for release
+      run: cargo build --release
+      shell: bash
+    - name: Install SSH key
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ inputs.ssh-private-key }}
+        known_hosts: ${{ inputs.ssh-known-hosts }}
+    - name: rsync over SSH
+      run: rsync -r ./target/release/ ${{ inputs.ssh-user }}@${{ inputs.ssh-host }}:${{ inputs.project-directory }}
+      shell: bash
+    - name: Start process
+      run: ssh ${{ inputs.ssh-user }}@${{ inputs.ssh-host }} 'bash -s' < start.sh ./${{ inputs.project-directory }} ${{ inputs.project-name }}
+      shell: bash
