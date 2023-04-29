@@ -2,7 +2,7 @@
 
 GitHub Action to running Rust binary on Debian Bulls Eye using SSH `rsync`.
 
-## Supported runners
+## Supported runner
 
 `ubuntu-20.04`
 
@@ -11,12 +11,11 @@ GitHub Action to running Rust binary on Debian Bulls Eye using SSH `rsync`.
 ## Input
 
 ```yaml
-inputs:
   working-directory:
     description: "Working directory for the build."
     required: true
   binary-name:
-    description: "Name of the binary to run."
+    description: "Name of the binary to run. Usually the [[bin]] value in the Cargo.toml."
     required: true
   ssh-user:
     description: "SSH user."
@@ -46,13 +45,14 @@ jobs:
   build-and-release:
     runs-on: ubuntu-20.04
     steps:
-      - uses: setoelkahfi/garust-debian@v1
-        with: Install Rust stable
-            ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
-            ssh-known-hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
-            ssh-user: ${{ secrets.SSH_USER }}
-            ssh-host: ${{ secrets.SSH_HOST }}
-            project-directory: ${{ secrets.PROJECT_DIRECTORY }}
-            project-name: ${{ secrets.PROJECT_NAME }}
+        - uses: actions/checkout@v3
+        - uses: setoelkahfi/garust-debian@v1
+            with: Install Rust stable
+                ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
+                ssh-known-hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+                ssh-user: ${{ secrets.SSH_USER }}
+                ssh-host: ${{ secrets.SSH_HOST }}
+                project-directory: ${{ secrets.PROJECT_DIRECTORY }}
+                project-name: ${{ secrets.PROJECT_NAME }}
 
 ```

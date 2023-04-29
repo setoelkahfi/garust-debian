@@ -37,5 +37,5 @@ runs:
       run: rsync -r ./target/release/ ${{ inputs.ssh-user }}@${{ inputs.ssh-host }}:${{ inputs.project-directory }}
       shell: bash
     - name: Start process
-      run: ssh ${{ inputs.ssh-user }}@${{ inputs.ssh-host }} 'bash -s' < start.sh ${{ inputs.project-directory }} ${{ inputs.project-name }}
+      run: ssh ${{ inputs.ssh-user }}@${{ inputs.ssh-host }} 'bash -s' < start.sh ./${{ inputs.project-directory }} ${{ inputs.project-name }}
       shell: bash
