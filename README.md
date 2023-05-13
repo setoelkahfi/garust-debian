@@ -1,6 +1,6 @@
 # garust-debian
 
-GitHub Action to running Rust binary on Debian Bulls Eye using SSH `rsync`.
+GitHub Action to running Rust binary on Debian Bulls Eye using SSH `rsync`. As seen on my [Medium article](https://medium.com/smbpndk/deploy-rust-axum-binary-with-garust-debian-github-action-f04da853581).
 
 ## Supported runner
 
