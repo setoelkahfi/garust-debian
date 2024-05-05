@@ -1,0 +1,41 @@
+name: "GitHub Action Push-to-deploy"
+description: "GitHub Action to deploy main branch to production a la Heroku."
+inputs:
+  git-directory:
+    description: "Your git bare repo directory."
+    required: true
+  git-user:
+    description: "Git user. Usually deploy."
+    required: true
+  git-host:
+    description: "Git host."
+    required: true
+  ssh-private-key:
+    description: "SSH private key."
+    required: true
+  ssh-known-hosts:
+    description: "SSH known hosts."
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        depth: 0
+    - name: Setup remote git
+      run: |
+        git config --global user.email "${{ inputs.git-user }}@${{ inputs.git-host }}"
+        git config --global user.name "${{ inputs.git-user }}"
+        git remote add prod ${{ inputs.git-user }}@${{ inputs.git-host }}:${{ inputs.git-directory }}
+      shell: bash
+    - name: Install SSH key
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ inputs.ssh-private-key }}
+        known_hosts: ${{ inputs.ssh-known-hosts }}
+    - name: Push-to-deploy
+      run: |
+        git push prod HEAD:main
+      shell: bash
