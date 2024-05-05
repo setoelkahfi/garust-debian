@@ -1,5 +1,8 @@
 name: "GitHub Action Rust-on-Debian"
 description: "GitHub Action to running Rust binary on Debian Bulls Eye."
+branding:
+  icon: "box"
+  color: "red"
 inputs:
   project-directory:
     description: "Working directory for the build."
