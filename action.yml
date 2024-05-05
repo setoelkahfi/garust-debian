@@ -1,14 +1,17 @@
-name: "GitHub Action Push-to-deploy"
-description: "GitHub Action to deploy main branch to production a la Heroku."
+name: "GitHub Action Rust-on-Debian"
+description: "GitHub Action to running Rust binary on Debian Bulls Eye."
 inputs:
-  git-directory:
-    description: "Your git bare repo directory."
+  project-directory:
+    description: "Working directory for the build."
     required: true
-  git-user:
-    description: "Git user. Usually deploy."
+  project-name:
+    description: "Name of the binary to run."
     required: true
-  git-host:
-    description: "Git host."
+  ssh-user:
+    description: "SSH user."
+    required: true
+  ssh-host:
+    description: "SSH host."
     required: true
   ssh-private-key:
     description: "SSH private key."
@@ -20,22 +23,19 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        depth: 0
-    - name: Setup remote git
-      run: |
-        git config --global user.email "${{ inputs.git-user }}@${{ inputs.git-host }}"
-        git config --global user.name "${{ inputs.git-user }}"
-        git remote add prod ${{ inputs.git-user }}@${{ inputs.git-host }}:${{ inputs.git-directory }}
+    - name: Install Rust stable
+      uses: dtolnay/rust-toolchain@stable
+    - name: Build for release
+      run: cargo build --release
       shell: bash
     - name: Install SSH key
       uses: shimataro/ssh-key-action@v2
       with:
         key: ${{ inputs.ssh-private-key }}
         known_hosts: ${{ inputs.ssh-known-hosts }}
-    - name: Push-to-deploy
-      run: |
-        git push prod HEAD:main
+    - name: rsync over SSH
+      run: rsync -r ./target/release/ ${{ inputs.ssh-user }}@${{ inputs.ssh-host }}:${{ inputs.project-directory }}
+      shell: bash
+    - name: Start process
+      run: ssh ${{ inputs.ssh-user }}@${{ inputs.ssh-host }} 'bash -s' < start.sh ./${{ inputs.project-directory }} ${{ inputs.project-name }}
       shell: bash
